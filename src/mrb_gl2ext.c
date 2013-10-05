@@ -1,7 +1,12 @@
 #include <mruby.h>
 
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+#ifdef __APPLE__
+#  import <OpenGL/gl3.h>
+#  import <OpenGL/gl3ext.h>
+#else
+#  include <GLES2/gl2.h>
+#  include <GLES2/gl2ext.h>
+#endif
 
 static struct RClass *mod_gl2ext;
 

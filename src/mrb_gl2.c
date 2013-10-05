@@ -5,7 +5,11 @@
 #include <mruby/array.h>
 #include <mruby/string.h>
 
-#include <GLES2/gl2.h>
+#ifdef __APPLE__
+#  import <OpenGL/gl3.h>
+#else
+#  include <GLES2/gl2.h>
+#endif
 
 #define MRB_VALUE_TO_GL_BOOLEAN(v_) ((mrb_test(v_)) ? (GL_TRUE) : (GL_FALSE))
 #define GL_BOOLEAN_TO_MRB_VALUE(v_) (((v_) == GL_TRUE) ? (mrb_true_value()) : \
@@ -161,7 +165,9 @@ int gl_get_argument_number(GLenum name)
   int n = -1;
   switch (name) {
     case GL_ACTIVE_TEXTURE:
+#ifdef GL_ALPHA_BITS
     case GL_ALPHA_BITS:
+#endif
     case GL_ARRAY_BUFFER_BINDING:
     case GL_BLEND:
     case GL_BLEND_DST_ALPHA:
@@ -170,11 +176,15 @@ int gl_get_argument_number(GLenum name)
     case GL_BLEND_EQUATION_RGB:
     case GL_BLEND_SRC_ALPHA:
     case GL_BLEND_SRC_RGB:
+#ifdef GL_BLUE_BITS
     case GL_BLUE_BITS:
+#endif
     case GL_CULL_FACE:
     case GL_CULL_FACE_MODE:
     case GL_CURRENT_PROGRAM:
+#ifdef GL_DEPTH_BITS
     case GL_DEPTH_BITS:
+#endif
     case GL_DEPTH_CLEAR_VALUE:
     case GL_DEPTH_FUNC:
     case GL_DEPTH_TEST:
@@ -183,28 +193,46 @@ int gl_get_argument_number(GLenum name)
     case GL_ELEMENT_ARRAY_BUFFER_BINDING:
     case GL_FRAMEBUFFER_BINDING:
     case GL_FRONT_FACE:
+#ifdef GL_GENERATE_MIPMAP_HINT
     case GL_GENERATE_MIPMAP_HINT:
+#endif
+#ifdef GL_GREEN_BITS
     case GL_GREEN_BITS:
+#endif
+#ifdef GL_IMPLEMENTATION_COLOR_READ_FORMAT
     case GL_IMPLEMENTATION_COLOR_READ_FORMAT:
+#endif
+#ifdef GL_IMPLEMENTATION_COLOR_READ_TYPE
     case GL_IMPLEMENTATION_COLOR_READ_TYPE:
+#endif
     case GL_LINE_WIDTH:
     case GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS:
     case GL_MAX_CUBE_MAP_TEXTURE_SIZE:
+#ifdef GL_MAX_FRAGMENT_UNIFORM_VECTORS
     case GL_MAX_FRAGMENT_UNIFORM_VECTORS:
+#endif
     case GL_MAX_RENDERBUFFER_SIZE:
     case GL_MAX_TEXTURE_IMAGE_UNITS:
     case GL_MAX_TEXTURE_SIZE:
+#ifdef GL_MAX_VARYING_VECTORS
     case GL_MAX_VARYING_VECTORS:
+#endif
     case GL_MAX_VERTEX_ATTRIBS:
     case GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS:
+#ifdef GL_MAX_VERTEX_UNIFORM_VECTORS
     case GL_MAX_VERTEX_UNIFORM_VECTORS:
+#endif
     case GL_NUM_COMPRESSED_TEXTURE_FORMATS:
+#ifdef GL_NUM_SHADER_BINARY_FORMATS
     case GL_NUM_SHADER_BINARY_FORMATS:
+#endif
     case GL_PACK_ALIGNMENT:
     case GL_POLYGON_OFFSET_FACTOR:
     case GL_POLYGON_OFFSET_FILL:
     case GL_POLYGON_OFFSET_UNITS:
+#ifdef GL_RED_BITS
     case GL_RED_BITS:
+#endif
     case GL_RENDERBUFFER_BINDING:
     case GL_SAMPLE_ALPHA_TO_COVERAGE:
     case GL_SAMPLE_BUFFERS:
@@ -213,7 +241,9 @@ int gl_get_argument_number(GLenum name)
     case GL_SAMPLE_COVERAGE_VALUE:
     case GL_SAMPLES:
     case GL_SCISSOR_TEST:
+#ifdef GL_SHADER_COMPILER
     case GL_SHADER_COMPILER:
+#endif
     case GL_STENCIL_BACK_FAIL:
     case GL_STENCIL_BACK_FUNC:
     case GL_STENCIL_BACK_PASS_DEPTH_FAIL:
@@ -221,7 +251,9 @@ int gl_get_argument_number(GLenum name)
     case GL_STENCIL_BACK_REF:
     case GL_STENCIL_BACK_VALUE_MASK:
     case GL_STENCIL_BACK_WRITEMASK:
+#ifdef GL_STENCIL_BITS
     case GL_STENCIL_BITS:
+#endif
     case GL_STENCIL_CLEAR_VALUE:
     case GL_STENCIL_FAIL:
     case GL_STENCIL_FUNC:
@@ -238,7 +270,9 @@ int gl_get_argument_number(GLenum name)
       n = 1;
       break;
     case GL_ALIASED_LINE_WIDTH_RANGE:
+#ifdef GL_ALIASED_POINT_SIZE_RANGE
     case GL_ALIASED_POINT_SIZE_RANGE:
+#endif
     case GL_DEPTH_RANGE:
     case GL_MAX_VIEWPORT_DIMS:
       n = 2;
@@ -253,9 +287,11 @@ int gl_get_argument_number(GLenum name)
     case GL_COMPRESSED_TEXTURE_FORMATS:
       n = GL_NUM_COMPRESSED_TEXTURE_FORMATS;
       break;
+#ifdef GL_SHADER_BINARY_FORMATS
     case GL_SHADER_BINARY_FORMATS:
       n = GL_NUM_SHADER_BINARY_FORMATS;
       break;
+#endif
   }
   return n;
 }
@@ -478,6 +514,7 @@ mrb_gl_clear_color(mrb_state* mrb, mrb_value mod)
   return mrb_nil_value();
 }
 
+#ifndef __APPLE__
 static mrb_value
 mrb_gl_clear_depthf(mrb_state* mrb, mrb_value mod)
 {
@@ -499,6 +536,7 @@ mrb_gl_clear_stencil(mrb_state* mrb, mrb_value mod)
 
   return mrb_nil_value();
 }
+#endif
 
 static mrb_value
 mrb_gl_color_mask(mrb_state* mrb, mrb_value mod)
@@ -725,6 +763,7 @@ mrb_gl_depth_mask(mrb_state* mrb, mrb_value mod)
   return mrb_nil_value();
 }
 
+#ifndef __APPLE__
 static mrb_value
 mrb_gl_depth_rangef(mrb_state* mrb, mrb_value mod)
 {
@@ -735,6 +774,7 @@ mrb_gl_depth_rangef(mrb_state* mrb, mrb_value mod)
 
   return mrb_nil_value();
 }
+#endif
 
 static mrb_value
 mrb_gl_detach_shader(mrb_state* mrb, mrb_value mod)
@@ -1207,6 +1247,7 @@ mrb_gl_get_shader_info_log(mrb_state* mrb, mrb_value mod)
                       infoLog);
 }
 
+#ifndef __APPLE__
 static mrb_value
 mrb_gl_get_shader_precision_format(mrb_state* mrb, mrb_value mod)
 {
@@ -1224,6 +1265,7 @@ mrb_gl_get_shader_precision_format(mrb_state* mrb, mrb_value mod)
                            mrb_fixnum_value(range[1]));
   return mrb_ary_newv(mrb, 2, range_arr, mrb_fixnum_value(precision));
 }
+#endif
 
 static mrb_value
 mrb_gl_get_shader_source(mrb_state* mrb, mrb_value mod)
@@ -1527,6 +1569,7 @@ mrb_gl_read_pixels(mrb_state* mrb, mrb_value mod)
   return mrb_str_new_cstr(mrb, (const char*) pixels);
 }
 
+#ifndef __APPLE__
 static mrb_value
 mrb_gl_release_shader_compiler(mrb_state* mrb, mrb_value mod)
 {
@@ -1534,6 +1577,7 @@ mrb_gl_release_shader_compiler(mrb_state* mrb, mrb_value mod)
 
   return mrb_nil_value();
 }
+#endif
 
 static mrb_value
 mrb_gl_renderbuffer_storage(mrb_state* mrb, mrb_value mod)
@@ -1570,6 +1614,7 @@ mrb_gl_scissor(mrb_state* mrb, mrb_value mod)
   return mrb_nil_value();
 }
 
+#ifndef __APPLE__
 static mrb_value
 mrb_gl_shader_binary(mrb_state* mrb, mrb_value mod)
 {
@@ -1589,6 +1634,7 @@ mrb_gl_shader_binary(mrb_state* mrb, mrb_value mod)
 
   return mrb_nil_value();
 }
+#endif
 
 static mrb_value
 mrb_gl_shader_source(mrb_state* mrb, mrb_value mod)
@@ -2223,7 +2269,9 @@ mrb_mruby_gles_gem_gl2_init(mrb_state* mrb)
   mod_gl2 = mrb_define_module(mrb, "GL2");
 
   /* constants */
+#ifdef GL_ES_VERSION_2_0
   mrb_define_const(mrb, mod_gl2, "GL_ES_VERSION_2_0", mrb_fixnum_value(GL_ES_VERSION_2_0));
+#endif
 
   mrb_define_const(mrb, mod_gl2, "GL_DEPTH_BUFFER_BIT", mrb_fixnum_value(GL_DEPTH_BUFFER_BIT));
   mrb_define_const(mrb, mod_gl2, "GL_STENCIL_BUFFER_BIT", mrb_fixnum_value(GL_STENCIL_BUFFER_BIT));
@@ -2310,7 +2358,9 @@ mrb_mruby_gles_gem_gl2_init(mrb_state* mrb)
   mrb_define_const(mrb, mod_gl2, "GL_CCW", mrb_fixnum_value(GL_CCW));
 
   mrb_define_const(mrb, mod_gl2, "GL_LINE_WIDTH", mrb_fixnum_value(GL_LINE_WIDTH));
+#ifdef GL_ALIASED_POINT_SIZE_RANGE
   mrb_define_const(mrb, mod_gl2, "GL_ALIASED_POINT_SIZE_RANGE", mrb_fixnum_value(GL_ALIASED_POINT_SIZE_RANGE));
+#endif
   mrb_define_const(mrb, mod_gl2, "GL_ALIASED_LINE_WIDTH_RANGE", mrb_fixnum_value(GL_ALIASED_LINE_WIDTH_RANGE));
   mrb_define_const(mrb, mod_gl2, "GL_CULL_FACE_MODE", mrb_fixnum_value(GL_CULL_FACE_MODE));
   mrb_define_const(mrb, mod_gl2, "GL_FRONT_FACE", mrb_fixnum_value(GL_FRONT_FACE));
@@ -2343,12 +2393,24 @@ mrb_mruby_gles_gem_gl2_init(mrb_state* mrb)
   mrb_define_const(mrb, mod_gl2, "GL_MAX_TEXTURE_SIZE", mrb_fixnum_value(GL_MAX_TEXTURE_SIZE));
   mrb_define_const(mrb, mod_gl2, "GL_MAX_VIEWPORT_DIMS", mrb_fixnum_value(GL_MAX_VIEWPORT_DIMS));
   mrb_define_const(mrb, mod_gl2, "GL_SUBPIXEL_BITS", mrb_fixnum_value(GL_SUBPIXEL_BITS));
+#ifdef GL_RED_BITS
   mrb_define_const(mrb, mod_gl2, "GL_RED_BITS", mrb_fixnum_value(GL_RED_BITS));
+#endif
+#ifdef GL_GREEN_BITS
   mrb_define_const(mrb, mod_gl2, "GL_GREEN_BITS", mrb_fixnum_value(GL_GREEN_BITS));
+#endif
+#ifdef GL_BLUE_BITS
   mrb_define_const(mrb, mod_gl2, "GL_BLUE_BITS", mrb_fixnum_value(GL_BLUE_BITS));
+#endif
+#ifdef GL_ALPHA_BITS
   mrb_define_const(mrb, mod_gl2, "GL_ALPHA_BITS", mrb_fixnum_value(GL_ALPHA_BITS));
+#endif
+#ifdef GL_DEPTH_BITS
   mrb_define_const(mrb, mod_gl2, "GL_DEPTH_BITS", mrb_fixnum_value(GL_DEPTH_BITS));
+#endif
+#ifdef GL_STENCIL_BITS
   mrb_define_const(mrb, mod_gl2, "GL_STENCIL_BITS", mrb_fixnum_value(GL_STENCIL_BITS));
+#endif
   mrb_define_const(mrb, mod_gl2, "GL_POLYGON_OFFSET_UNITS", mrb_fixnum_value(GL_POLYGON_OFFSET_UNITS));
 
   mrb_define_const(mrb, mod_gl2, "GL_POLYGON_OFFSET_FACTOR", mrb_fixnum_value(GL_POLYGON_OFFSET_FACTOR));
@@ -2365,7 +2427,9 @@ mrb_mruby_gles_gem_gl2_init(mrb_state* mrb)
   mrb_define_const(mrb, mod_gl2, "GL_FASTEST", mrb_fixnum_value(GL_FASTEST));
   mrb_define_const(mrb, mod_gl2, "GL_NICEST", mrb_fixnum_value(GL_NICEST));
 
+#ifdef GL_GENERATE_MIPMAP_HINT
   mrb_define_const(mrb, mod_gl2, "GL_GENERATE_MIPMAP_HINT", mrb_fixnum_value(GL_GENERATE_MIPMAP_HINT));
+#endif
 
   mrb_define_const(mrb, mod_gl2, "GL_BYTE", mrb_fixnum_value(GL_BYTE));
   mrb_define_const(mrb, mod_gl2, "GL_UNSIGNED_BYTE", mrb_fixnum_value(GL_UNSIGNED_BYTE));
@@ -2374,14 +2438,20 @@ mrb_mruby_gles_gem_gl2_init(mrb_state* mrb)
   mrb_define_const(mrb, mod_gl2, "GL_INT", mrb_fixnum_value(GL_INT));
   mrb_define_const(mrb, mod_gl2, "GL_UNSIGNED_INT", mrb_fixnum_value(GL_UNSIGNED_INT));
   mrb_define_const(mrb, mod_gl2, "GL_FLOAT", mrb_fixnum_value(GL_FLOAT));
+#ifdef GL_FIXED
   mrb_define_const(mrb, mod_gl2, "GL_FIXED", mrb_fixnum_value(GL_FIXED));
+#endif
 
   mrb_define_const(mrb, mod_gl2, "GL_DEPTH_COMPONENT", mrb_fixnum_value(GL_DEPTH_COMPONENT));
   mrb_define_const(mrb, mod_gl2, "GL_ALPHA", mrb_fixnum_value(GL_ALPHA));
   mrb_define_const(mrb, mod_gl2, "GL_RGB", mrb_fixnum_value(GL_RGB));
   mrb_define_const(mrb, mod_gl2, "GL_RGBA", mrb_fixnum_value(GL_RGBA));
+#ifdef GL_LUMINANCE
   mrb_define_const(mrb, mod_gl2, "GL_LUMINANCE", mrb_fixnum_value(GL_LUMINANCE));
+#endif
+#ifdef GL_LUMINANCE_ALPHA
   mrb_define_const(mrb, mod_gl2, "GL_LUMINANCE_ALPHA", mrb_fixnum_value(GL_LUMINANCE_ALPHA));
+#endif
 
   mrb_define_const(mrb, mod_gl2, "GL_UNSIGNED_SHORT_4_4_4_4", mrb_fixnum_value(GL_UNSIGNED_SHORT_4_4_4_4));
   mrb_define_const(mrb, mod_gl2, "GL_UNSIGNED_SHORT_5_5_5_1", mrb_fixnum_value(GL_UNSIGNED_SHORT_5_5_5_1));
@@ -2390,12 +2460,18 @@ mrb_mruby_gles_gem_gl2_init(mrb_state* mrb)
   mrb_define_const(mrb, mod_gl2, "GL_FRAGMENT_SHADER", mrb_fixnum_value(GL_FRAGMENT_SHADER));
   mrb_define_const(mrb, mod_gl2, "GL_VERTEX_SHADER", mrb_fixnum_value(GL_VERTEX_SHADER));
   mrb_define_const(mrb, mod_gl2, "GL_MAX_VERTEX_ATTRIBS", mrb_fixnum_value(GL_MAX_VERTEX_ATTRIBS));
+#ifdef GL_MAX_VERTEX_UNIFORM_VECTORS
   mrb_define_const(mrb, mod_gl2, "GL_MAX_VERTEX_UNIFORM_VECTORS", mrb_fixnum_value(GL_MAX_VERTEX_UNIFORM_VECTORS));
+#endif
+#ifdef GL_MAX_VARYING_VECTORS
   mrb_define_const(mrb, mod_gl2, "GL_MAX_VARYING_VECTORS", mrb_fixnum_value(GL_MAX_VARYING_VECTORS));
+#endif
   mrb_define_const(mrb, mod_gl2, "GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS", mrb_fixnum_value(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS));
   mrb_define_const(mrb, mod_gl2, "GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS", mrb_fixnum_value(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS));
   mrb_define_const(mrb, mod_gl2, "GL_MAX_TEXTURE_IMAGE_UNITS", mrb_fixnum_value(GL_MAX_TEXTURE_IMAGE_UNITS));
+#ifdef GL_MAX_FRAGMENT_UNIFORM_VECTORS
   mrb_define_const(mrb, mod_gl2, "GL_MAX_FRAGMENT_UNIFORM_VECTORS", mrb_fixnum_value(GL_MAX_FRAGMENT_UNIFORM_VECTORS));
+#endif
   mrb_define_const(mrb, mod_gl2, "GL_SHADER_TYPE", mrb_fixnum_value(GL_SHADER_TYPE));
   mrb_define_const(mrb, mod_gl2, "GL_DELETE_STATUS", mrb_fixnum_value(GL_DELETE_STATUS));
   mrb_define_const(mrb, mod_gl2, "GL_LINK_STATUS", mrb_fixnum_value(GL_LINK_STATUS));
@@ -2517,30 +2593,54 @@ mrb_mruby_gles_gem_gl2_init(mrb_state* mrb)
   mrb_define_const(mrb, mod_gl2, "GL_VERTEX_ATTRIB_ARRAY_POINTER", mrb_fixnum_value(GL_VERTEX_ATTRIB_ARRAY_POINTER));
   mrb_define_const(mrb, mod_gl2, "GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING", mrb_fixnum_value(GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING));
 
+#ifdef GL_IMPLEMENTATION_COLOR_READ_TYPE
   mrb_define_const(mrb, mod_gl2, "GL_IMPLEMENTATION_COLOR_READ_TYPE", mrb_fixnum_value(GL_IMPLEMENTATION_COLOR_READ_TYPE));
+#endif
+#ifdef GL_IMPLEMENTATION_COLOR_READ_FORMAT
   mrb_define_const(mrb, mod_gl2, "GL_IMPLEMENTATION_COLOR_READ_FORMAT", mrb_fixnum_value(GL_IMPLEMENTATION_COLOR_READ_FORMAT));
+#endif
 
   mrb_define_const(mrb, mod_gl2, "GL_COMPILE_STATUS", mrb_fixnum_value(GL_COMPILE_STATUS));
   mrb_define_const(mrb, mod_gl2, "GL_INFO_LOG_LENGTH", mrb_fixnum_value(GL_INFO_LOG_LENGTH));
   mrb_define_const(mrb, mod_gl2, "GL_SHADER_SOURCE_LENGTH", mrb_fixnum_value(GL_SHADER_SOURCE_LENGTH));
+#ifdef GL_SHADER_COMPILER
   mrb_define_const(mrb, mod_gl2, "GL_SHADER_COMPILER", mrb_fixnum_value(GL_SHADER_COMPILER));
+#endif
 
+#ifdef GL_SHADER_BINARY_FORMATS
   mrb_define_const(mrb, mod_gl2, "GL_SHADER_BINARY_FORMATS", mrb_fixnum_value(GL_SHADER_BINARY_FORMATS));
+#endif
+#ifdef GL_NUM_SHADER_BINARY_FORMATS
   mrb_define_const(mrb, mod_gl2, "GL_NUM_SHADER_BINARY_FORMATS", mrb_fixnum_value(GL_NUM_SHADER_BINARY_FORMATS));
+#endif
 
+#ifdef GL_LOW_FLOAT
   mrb_define_const(mrb, mod_gl2, "GL_LOW_FLOAT", mrb_fixnum_value(GL_LOW_FLOAT));
+#endif
+#ifdef GL_MEDIUM_FLOAT
   mrb_define_const(mrb, mod_gl2, "GL_MEDIUM_FLOAT", mrb_fixnum_value(GL_MEDIUM_FLOAT));
+#endif
+#ifdef GL_HIGH_FLOAT
   mrb_define_const(mrb, mod_gl2, "GL_HIGH_FLOAT", mrb_fixnum_value(GL_HIGH_FLOAT));
+#endif
+#ifdef GL_LOW_INT
   mrb_define_const(mrb, mod_gl2, "GL_LOW_INT", mrb_fixnum_value(GL_LOW_INT));
+#endif
+#ifdef GL_MEDIUM_INT
   mrb_define_const(mrb, mod_gl2, "GL_MEDIUM_INT", mrb_fixnum_value(GL_MEDIUM_INT));
+#endif
+#ifdef GL_HIGH_INT
   mrb_define_const(mrb, mod_gl2, "GL_HIGH_INT", mrb_fixnum_value(GL_HIGH_INT));
+#endif
 
   mrb_define_const(mrb, mod_gl2, "GL_FRAMEBUFFER", mrb_fixnum_value(GL_FRAMEBUFFER));
   mrb_define_const(mrb, mod_gl2, "GL_RENDERBUFFER", mrb_fixnum_value(GL_RENDERBUFFER));
 
   mrb_define_const(mrb, mod_gl2, "GL_RGBA4", mrb_fixnum_value(GL_RGBA4));
   mrb_define_const(mrb, mod_gl2, "GL_RGB5_A1", mrb_fixnum_value(GL_RGB5_A1));
+#ifdef GL_RGB565
   mrb_define_const(mrb, mod_gl2, "GL_RGB565", mrb_fixnum_value(GL_RGB565));
+#endif
   mrb_define_const(mrb, mod_gl2, "GL_DEPTH_COMPONENT16", mrb_fixnum_value(GL_DEPTH_COMPONENT16));
 #ifdef GL_STENCIL_INDEX
   mrb_define_const(mrb, mod_gl2, "GL_STENCIL_INDEX", mrb_fixnum_value(GL_STENCIL_INDEX));
@@ -2571,7 +2671,9 @@ mrb_mruby_gles_gem_gl2_init(mrb_state* mrb)
   mrb_define_const(mrb, mod_gl2, "GL_FRAMEBUFFER_COMPLETE", mrb_fixnum_value(GL_FRAMEBUFFER_COMPLETE));
   mrb_define_const(mrb, mod_gl2, "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT", mrb_fixnum_value(GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT));
   mrb_define_const(mrb, mod_gl2, "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT", mrb_fixnum_value(GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT));
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS
   mrb_define_const(mrb, mod_gl2, "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS", mrb_fixnum_value(GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS));
+#endif
   mrb_define_const(mrb, mod_gl2, "GL_FRAMEBUFFER_UNSUPPORTED", mrb_fixnum_value(GL_FRAMEBUFFER_UNSUPPORTED));
 
   mrb_define_const(mrb, mod_gl2, "GL_FRAMEBUFFER_BINDING", mrb_fixnum_value(GL_FRAMEBUFFER_BINDING));
@@ -2598,8 +2700,10 @@ mrb_mruby_gles_gem_gl2_init(mrb_state* mrb)
   mrb_define_module_function(mrb, mod_gl2, "glCheckFramebufferStatus", mrb_gl_check_framebuffer_status, ARGS_REQ(1));
   mrb_define_module_function(mrb, mod_gl2, "glClear", mrb_gl_clear, ARGS_REQ(1));
   mrb_define_module_function(mrb, mod_gl2, "glClearColor", mrb_gl_clear_color, ARGS_REQ(4));
+#ifndef __APPLE__
   mrb_define_module_function(mrb, mod_gl2, "glClearDepthf", mrb_gl_clear_depthf, ARGS_REQ(1));
   mrb_define_module_function(mrb, mod_gl2, "glClearStencil", mrb_gl_clear_stencil, ARGS_REQ(1));
+#endif
   mrb_define_module_function(mrb, mod_gl2, "glColorMask", mrb_gl_color_mask, ARGS_REQ(4));
   mrb_define_module_function(mrb, mod_gl2, "glCompileShader", mrb_gl_compile_shader, ARGS_REQ(1));
   mrb_define_module_function(mrb, mod_gl2, "glCompressedTexImage2D", mrb_gl_compressed_tex_image_2d, ARGS_REQ(8));
@@ -2617,7 +2721,9 @@ mrb_mruby_gles_gem_gl2_init(mrb_state* mrb)
   mrb_define_module_function(mrb, mod_gl2, "glDeleteTextures", mrb_gl_delete_textures, ARGS_REQ(2));
   mrb_define_module_function(mrb, mod_gl2, "glDepthFunc", mrb_gl_depth_func, ARGS_REQ(1));
   mrb_define_module_function(mrb, mod_gl2, "glDepthMask", mrb_gl_depth_mask, ARGS_REQ(1));
+#ifndef __APPLE__
   mrb_define_module_function(mrb, mod_gl2, "glDepthRangef", mrb_gl_depth_rangef, ARGS_REQ(2));
+#endif
   mrb_define_module_function(mrb, mod_gl2, "glDetachShader", mrb_gl_detach_shader, ARGS_REQ(2));
   mrb_define_module_function(mrb, mod_gl2, "glDisable", mrb_gl_disable, ARGS_REQ(1));
   mrb_define_module_function(mrb, mod_gl2, "glDisableVertexAttribArray", mrb_gl_disable_vertex_attrib_array, ARGS_REQ(1));
@@ -2650,7 +2756,9 @@ mrb_mruby_gles_gem_gl2_init(mrb_state* mrb)
   mrb_define_module_function(mrb, mod_gl2, "glGetRenderbufferParameteriv", mrb_gl_get_renderbuffer_parameteriv, ARGS_REQ(2));
   mrb_define_module_function(mrb, mod_gl2, "glGetShaderiv", mrb_gl_get_shaderiv, ARGS_REQ(2));
   mrb_define_module_function(mrb, mod_gl2, "glGetShaderInfoLog", mrb_gl_get_shader_info_log, ARGS_REQ(2));
+#ifndef __APPLE__
   mrb_define_module_function(mrb, mod_gl2, "glGetShaderPrecisionFormat", mrb_gl_get_shader_precision_format, ARGS_REQ(2));
+#endif
   mrb_define_module_function(mrb, mod_gl2, "glGetShaderSource", mrb_gl_get_shader_source, ARGS_REQ(2));
   mrb_define_module_function(mrb, mod_gl2, "glGetString", mrb_gl_get_string, ARGS_REQ(1));
   mrb_define_module_function(mrb, mod_gl2, "glGetTexParameterfv", mrb_gl_get_tex_parameterfv, ARGS_REQ(2));
@@ -2674,11 +2782,15 @@ mrb_mruby_gles_gem_gl2_init(mrb_state* mrb)
   mrb_define_module_function(mrb, mod_gl2, "glPixelStorei", mrb_gl_pixel_storei, ARGS_REQ(2));
   mrb_define_module_function(mrb, mod_gl2, "glPolygonOffset", mrb_gl_polygon_offset, ARGS_REQ(2));
   mrb_define_module_function(mrb, mod_gl2, "glReadPixels", mrb_gl_read_pixels, ARGS_REQ(6));
+#ifndef __APPLE__
   mrb_define_module_function(mrb, mod_gl2, "glReleaseShaderCompiler", mrb_gl_release_shader_compiler, ARGS_NONE());
+#endif
   mrb_define_module_function(mrb, mod_gl2, "glRenderbufferStorage", mrb_gl_renderbuffer_storage, ARGS_REQ(4));
   mrb_define_module_function(mrb, mod_gl2, "glSampleCoverage", mrb_gl_sample_coverage, ARGS_REQ(2));
   mrb_define_module_function(mrb, mod_gl2, "glScissor", mrb_gl_scissor, ARGS_REQ(4));
+#ifndef __APPLE__
   mrb_define_module_function(mrb, mod_gl2, "glShaderBinary", mrb_gl_shader_binary, ARGS_REQ(5));
+#endif
   mrb_define_module_function(mrb, mod_gl2, "glShaderSource", mrb_gl_shader_source, ARGS_REQ(4));
   mrb_define_module_function(mrb, mod_gl2, "glStencilFunc", mrb_gl_stencil_func, ARGS_REQ(3));
   mrb_define_module_function(mrb, mod_gl2, "glStencilFuncSeparate", mrb_gl_stencil_func_separate, ARGS_REQ(4));
